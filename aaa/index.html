@@ -1,0 +1,617 @@
+
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--font-sans); }
+
+.hero {
+  background: linear-gradient(135deg, #0a3d1f 0%, #1a6b3a 60%, #2d8f52 100%);
+  border-radius: var(--border-radius-lg);
+  padding: 2.5rem 2rem 2rem;
+  color: white;
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 1.5rem;
+}
+.hero::before {
+  content: '';
+  position: absolute;
+  right: -30px; top: -30px;
+  width: 200px; height: 200px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.04);
+}
+.hero::after {
+  content: '';
+  position: absolute;
+  right: 40px; bottom: -50px;
+  width: 140px; height: 140px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.04);
+}
+.hero-badge {
+  display: inline-block;
+  background: rgba(255,255,255,0.15);
+  border: 0.5px solid rgba(255,255,255,0.3);
+  border-radius: 20px;
+  padding: 4px 14px;
+  font-size: 12px;
+  margin-bottom: 1rem;
+  letter-spacing: 0.04em;
+}
+.hero h1 {
+  font-size: 28px;
+  font-weight: 500;
+  color: white;
+  margin-bottom: 0.4rem;
+  line-height: 1.2;
+}
+.hero p {
+  font-size: 14px;
+  opacity: 0.8;
+  margin-bottom: 1.5rem;
+}
+.hero-stats {
+  display: flex;
+  gap: 2rem;
+}
+.hero-stat span:first-child {
+  display: block;
+  font-size: 22px;
+  font-weight: 500;
+}
+.hero-stat span:last-child {
+  font-size: 12px;
+  opacity: 0.7;
+}
+
+.tabs {
+  display: flex;
+  gap: 4px;
+  background: var(--color-background-secondary);
+  border-radius: var(--border-radius-md);
+  padding: 4px;
+  margin-bottom: 1.5rem;
+}
+.tab {
+  flex: 1;
+  padding: 8px;
+  border: none;
+  background: transparent;
+  border-radius: 6px;
+  font-size: 13px;
+  cursor: pointer;
+  color: var(--color-text-secondary);
+  transition: all 0.15s;
+}
+.tab.active {
+  background: var(--color-background-primary);
+  color: var(--color-text-primary);
+  border: 0.5px solid var(--color-border-tertiary);
+  font-weight: 500;
+}
+
+.section { display: none; }
+.section.active { display: block; }
+
+.turfs-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 12px;
+  margin-bottom: 1.5rem;
+}
+.turf-card {
+  background: var(--color-background-primary);
+  border: 0.5px solid var(--color-border-tertiary);
+  border-radius: var(--border-radius-lg);
+  overflow: hidden;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+.turf-card:hover { border-color: var(--color-border-primary); }
+.turf-card.selected { border: 2px solid #1a6b3a; }
+.turf-img {
+  height: 110px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 36px;
+  position: relative;
+}
+.turf-img-a { background: linear-gradient(135deg, #0a3d1f, #1a6b3a); }
+.turf-img-b { background: linear-gradient(135deg, #14456e, #1a6b8a); }
+.turf-img-c { background: linear-gradient(135deg, #3d1a0a, #8a3d1a); }
+.availability-badge {
+  position: absolute;
+  top: 8px; right: 8px;
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-weight: 500;
+}
+.avail-open { background: #d4edda; color: #155724; }
+.avail-few { background: #fff3cd; color: #856404; }
+.turf-body { padding: 12px; }
+.turf-name { font-size: 15px; font-weight: 500; margin-bottom: 4px; color: var(--color-text-primary); }
+.turf-meta { font-size: 12px; color: var(--color-text-secondary); margin-bottom: 10px; }
+.turf-features { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
+.feature-pill {
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 20px;
+  background: var(--color-background-secondary);
+  color: var(--color-text-secondary);
+  border: 0.5px solid var(--color-border-tertiary);
+}
+.turf-price {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+.turf-price .amount { font-size: 18px; font-weight: 500; color: #1a6b3a; }
+.turf-price .per { font-size: 12px; color: var(--color-text-secondary); }
+.select-btn {
+  font-size: 12px;
+  padding: 5px 14px;
+  border-radius: 6px;
+  border: 0.5px solid #1a6b3a;
+  background: transparent;
+  color: #1a6b3a;
+  cursor: pointer;
+  font-weight: 500;
+}
+.turf-card.selected .select-btn {
+  background: #1a6b3a;
+  color: white;
+}
+
+.booking-form {
+  background: var(--color-background-primary);
+  border: 0.5px solid var(--color-border-tertiary);
+  border-radius: var(--border-radius-lg);
+  padding: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px; }
+.form-group { display: flex; flex-direction: column; gap: 6px; }
+.form-group.full { grid-column: span 2; }
+label { font-size: 12px; font-weight: 500; color: var(--color-text-secondary); }
+input, select {
+  padding: 9px 12px;
+  border: 0.5px solid var(--color-border-secondary);
+  border-radius: var(--border-radius-md);
+  background: var(--color-background-secondary);
+  color: var(--color-text-primary);
+  font-size: 14px;
+  font-family: var(--font-sans);
+}
+input:focus, select:focus { outline: none; border-color: #1a6b3a; }
+
+.slots-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.slot {
+  padding: 8px 4px;
+  text-align: center;
+  border: 0.5px solid var(--color-border-tertiary);
+  border-radius: var(--border-radius-md);
+  font-size: 12px;
+  cursor: pointer;
+  color: var(--color-text-primary);
+  background: var(--color-background-secondary);
+  transition: all 0.15s;
+}
+.slot:hover:not(.booked) { border-color: #1a6b3a; }
+.slot.selected-slot { background: #1a6b3a; color: white; border-color: #1a6b3a; font-weight: 500; }
+.slot.booked { background: var(--color-background-secondary); color: var(--color-text-secondary); cursor: not-allowed; opacity: 0.5; text-decoration: line-through; }
+
+.summary-card {
+  background: var(--color-background-secondary);
+  border-radius: var(--border-radius-md);
+  padding: 1rem;
+  margin: 1rem 0;
+}
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  padding: 4px 0;
+  color: var(--color-text-secondary);
+}
+.summary-row.total {
+  border-top: 0.5px solid var(--color-border-tertiary);
+  margin-top: 8px;
+  padding-top: 10px;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--color-text-primary);
+}
+.book-btn {
+  width: 100%;
+  padding: 12px;
+  background: #1a6b3a;
+  color: white;
+  border: none;
+  border-radius: var(--border-radius-md);
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+.book-btn:hover { opacity: 0.9; }
+.book-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.my-bookings {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.booking-item {
+  background: var(--color-background-primary);
+  border: 0.5px solid var(--color-border-tertiary);
+  border-radius: var(--border-radius-lg);
+  padding: 1rem 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+.booking-icon {
+  width: 44px; height: 44px;
+  border-radius: 10px;
+  background: #e1f5ee;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+.booking-info { flex: 1; }
+.booking-info .bname { font-size: 14px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 3px; }
+.booking-info .bmeta { font-size: 12px; color: var(--color-text-secondary); }
+.booking-status {
+  font-size: 11px;
+  font-weight: 500;
+  padding: 4px 10px;
+  border-radius: 20px;
+}
+.status-confirmed { background: #d4edda; color: #155724; }
+.status-pending { background: #fff3cd; color: #856404; }
+
+.success-screen {
+  text-align: center;
+  padding: 2.5rem 1rem;
+  display: none;
+}
+.success-icon {
+  width: 64px; height: 64px;
+  background: #d4edda;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 1rem;
+  font-size: 28px;
+}
+.success-screen h2 { font-size: 20px; font-weight: 500; margin-bottom: 0.5rem; color: var(--color-text-primary); }
+.success-screen p { font-size: 14px; color: var(--color-text-secondary); margin-bottom: 1.5rem; }
+.ref-badge {
+  display: inline-block;
+  background: var(--color-background-secondary);
+  border: 0.5px solid var(--color-border-tertiary);
+  border-radius: var(--border-radius-md);
+  padding: 8px 20px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-text-primary);
+  margin-bottom: 1.5rem;
+}
+</style>
+
+<h2 class="sr-only">Cricket turf booking website — browse turfs, pick a slot, and confirm your booking</h2>
+
+<div class="hero">
+  <div class="hero-badge">Premium Cricket Facilities</div>
+  <h1>Book your cricket turf</h1>
+  <p>Professional-grade pitches — available 6 AM to 10 PM daily</p>
+  <div class="hero-stats">
+    <div class="hero-stat"><span>3</span><span>Turfs</span></div>
+    <div class="hero-stat"><span>16</span><span>Slots/day</span></div>
+    <div class="hero-stat"><span>4.8★</span><span>Rated</span></div>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" onclick="switchTab('browse')">Browse Turfs</button>
+  <button class="tab" onclick="switchTab('book')">Book a Slot</button>
+  <button class="tab" onclick="switchTab('mybookings')">My Bookings</button>
+</div>
+
+<div id="browse" class="section active">
+  <div class="turfs-grid">
+    <div class="turf-card" id="card-1" onclick="selectTurf(1)">
+      <div class="turf-img turf-img-a">
+        🏏
+        <span class="availability-badge avail-open">Available</span>
+      </div>
+      <div class="turf-body">
+        <div class="turf-name">Green Field Turf A</div>
+        <div class="turf-meta">Full pitch · Floodlit · Capacity 22</div>
+        <div class="turf-features">
+          <span class="feature-pill">Astroturf</span>
+          <span class="feature-pill">Night lights</span>
+          <span class="feature-pill">Nets</span>
+        </div>
+        <div class="turf-price">
+          <div><span class="amount">₹800</span> <span class="per">/hr</span></div>
+          <button class="select-btn" id="selbtn-1">Select</button>
+        </div>
+      </div>
+    </div>
+    <div class="turf-card" id="card-2" onclick="selectTurf(2)">
+      <div class="turf-img turf-img-b">
+        🏏
+        <span class="availability-badge avail-few">3 slots left</span>
+      </div>
+      <div class="turf-body">
+        <div class="turf-name">Blue Pitch Turf B</div>
+        <div class="turf-meta">Half pitch · Covered · Capacity 14</div>
+        <div class="turf-features">
+          <span class="feature-pill">Matting</span>
+          <span class="feature-pill">Covered</span>
+          <span class="feature-pill">Scoreboard</span>
+        </div>
+        <div class="turf-price">
+          <div><span class="amount">₹550</span> <span class="per">/hr</span></div>
+          <button class="select-btn" id="selbtn-2">Select</button>
+        </div>
+      </div>
+    </div>
+    <div class="turf-card" id="card-3" onclick="selectTurf(3)">
+      <div class="turf-img turf-img-c">
+        🏏
+        <span class="availability-badge avail-open">Available</span>
+      </div>
+      <div class="turf-body">
+        <div class="turf-name">Red Zone Practice Net</div>
+        <div class="turf-meta">Practice only · Indoors · Capacity 6</div>
+        <div class="turf-features">
+          <span class="feature-pill">Indoor</span>
+          <span class="feature-pill">Bowling machine</span>
+        </div>
+        <div class="turf-price">
+          <div><span class="amount">₹350</span> <span class="per">/hr</span></div>
+          <button class="select-btn" id="selbtn-3">Select</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div style="text-align:center;">
+    <button class="book-btn" style="max-width:280px;" onclick="switchTab('book')">Proceed to booking ↗</button>
+  </div>
+</div>
+
+<div id="book" class="section">
+  <div id="booking-form-area">
+    <div class="booking-form">
+      <div style="font-size:15px;font-weight:500;color:var(--color-text-primary);margin-bottom:1rem;">Booking details</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Select turf</label>
+          <select id="turf-select" onchange="updateSummary()">
+            <option value="">— Choose a turf —</option>
+            <option value="1" data-price="800">Green Field Turf A — ₹800/hr</option>
+            <option value="2" data-price="550">Blue Pitch Turf B — ₹550/hr</option>
+            <option value="3" data-price="350">Red Zone Practice Net — ₹350/hr</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Date</label>
+          <input type="date" id="booking-date" onchange="updateSummary()" />
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group full">
+          <label>Select time slot</label>
+          <div class="slots-grid" id="slots-grid">
+            <div class="slot booked">6:00 AM</div>
+            <div class="slot" onclick="selectSlot(this,'7:00 AM')">7:00 AM</div>
+            <div class="slot" onclick="selectSlot(this,'8:00 AM')">8:00 AM</div>
+            <div class="slot booked">9:00 AM</div>
+            <div class="slot" onclick="selectSlot(this,'10:00 AM')">10:00 AM</div>
+            <div class="slot" onclick="selectSlot(this,'11:00 AM')">11:00 AM</div>
+            <div class="slot" onclick="selectSlot(this,'12:00 PM')">12:00 PM</div>
+            <div class="slot booked">1:00 PM</div>
+            <div class="slot" onclick="selectSlot(this,'2:00 PM')">2:00 PM</div>
+            <div class="slot" onclick="selectSlot(this,'3:00 PM')">3:00 PM</div>
+            <div class="slot booked">4:00 PM</div>
+            <div class="slot" onclick="selectSlot(this,'5:00 PM')">5:00 PM</div>
+            <div class="slot" onclick="selectSlot(this,'6:00 PM')">6:00 PM</div>
+            <div class="slot" onclick="selectSlot(this,'7:00 PM')">7:00 PM</div>
+            <div class="slot booked">8:00 PM</div>
+            <div class="slot" onclick="selectSlot(this,'9:00 PM')">9:00 PM</div>
+          </div>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Duration (hours)</label>
+          <select id="duration" onchange="updateSummary()">
+            <option value="1">1 hour</option>
+            <option value="2">2 hours</option>
+            <option value="3">3 hours</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Your name</label>
+          <input type="text" id="user-name" placeholder="Full name" />
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Phone number</label>
+          <input type="tel" id="user-phone" placeholder="+91 XXXXX XXXXX" />
+        </div>
+        <div class="form-group">
+          <label>Team / club name</label>
+          <input type="text" id="team-name" placeholder="Optional" />
+        </div>
+      </div>
+    </div>
+
+    <div class="booking-form" style="margin-bottom:1rem;">
+      <div style="font-size:14px;font-weight:500;color:var(--color-text-primary);margin-bottom:0.75rem;">Booking summary</div>
+      <div class="summary-card">
+        <div class="summary-row"><span>Turf</span><span id="s-turf">—</span></div>
+        <div class="summary-row"><span>Date & time</span><span id="s-datetime">—</span></div>
+        <div class="summary-row"><span>Duration</span><span id="s-duration">—</span></div>
+        <div class="summary-row"><span>Rate</span><span id="s-rate">—</span></div>
+        <div class="summary-row total"><span>Total</span><span id="s-total">—</span></div>
+      </div>
+      <button class="book-btn" onclick="confirmBooking()">Confirm & pay ↗</button>
+    </div>
+  </div>
+
+  <div class="success-screen" id="success-screen">
+    <div class="success-icon">✓</div>
+    <h2>Booking confirmed!</h2>
+    <p>Your slot has been reserved. Check your phone for confirmation.</p>
+    <div class="ref-badge" id="ref-code">REF: —</div>
+    <div id="confirm-summary" style="font-size:13px;color:var(--color-text-secondary);margin-bottom:1.5rem;"></div>
+    <button class="book-btn" style="max-width:200px;margin:0 auto;" onclick="newBooking()">Book another slot</button>
+  </div>
+</div>
+
+<div id="mybookings" class="section">
+  <div class="my-bookings" id="bookings-list">
+    <div class="booking-item">
+      <div class="booking-icon">🏏</div>
+      <div class="booking-info">
+        <div class="bname">Green Field Turf A</div>
+        <div class="bmeta">Apr 10 · 6:00 PM – 8:00 PM · 2 hrs</div>
+      </div>
+      <span class="booking-status status-confirmed">Confirmed</span>
+    </div>
+    <div class="booking-item">
+      <div class="booking-icon">🏏</div>
+      <div class="booking-info">
+        <div class="bname">Red Zone Practice Net</div>
+        <div class="bmeta">Apr 12 · 7:00 AM – 8:00 AM · 1 hr</div>
+      </div>
+      <span class="booking-status status-pending">Pending</span>
+    </div>
+  </div>
+</div>
+
+<script>
+let selectedTurf = null;
+let selectedSlotEl = null;
+let selectedSlotTime = null;
+
+const turfPrices = { '1': 800, '2': 550, '3': 350 };
+const turfNames = { '1': 'Green Field Turf A', '2': 'Blue Pitch Turf B', '3': 'Red Zone Practice Net' };
+
+const dateInput = document.getElementById('booking-date');
+const today = new Date();
+const yyyy = today.getFullYear();
+const mm = String(today.getMonth()+1).padStart(2,'0');
+const dd = String(today.getDate()).padStart(2,'0');
+dateInput.value = `${yyyy}-${mm}-${dd}`;
+dateInput.min = `${yyyy}-${mm}-${dd}`;
+
+function switchTab(id) {
+  document.querySelectorAll('.tab').forEach((t,i) => {
+    t.classList.toggle('active', ['browse','book','mybookings'][i] === id);
+  });
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function selectTurf(id) {
+  selectedTurf = id;
+  document.querySelectorAll('.turf-card').forEach(c => c.classList.remove('selected'));
+  document.querySelectorAll('.select-btn').forEach(b => b.textContent = 'Select');
+  document.getElementById('card-'+id).classList.add('selected');
+  document.getElementById('selbtn-'+id).textContent = 'Selected ✓';
+  document.getElementById('turf-select').value = id;
+  updateSummary();
+}
+
+function selectSlot(el, time) {
+  if (el.classList.contains('booked')) return;
+  if (selectedSlotEl) selectedSlotEl.classList.remove('selected-slot');
+  el.classList.add('selected-slot');
+  selectedSlotEl = el;
+  selectedSlotTime = time;
+  updateSummary();
+}
+
+function updateSummary() {
+  const turfVal = document.getElementById('turf-select').value;
+  const dur = parseInt(document.getElementById('duration').value);
+  const date = document.getElementById('booking-date').value;
+
+  if (turfVal) {
+    selectedTurf = turfVal;
+    document.querySelectorAll('.turf-card').forEach(c => c.classList.remove('selected'));
+    document.querySelectorAll('.select-btn').forEach(b => b.textContent = 'Select');
+    document.getElementById('card-'+turfVal).classList.add('selected');
+    document.getElementById('selbtn-'+turfVal).textContent = 'Selected ✓';
+  }
+
+  document.getElementById('s-turf').textContent = turfVal ? turfNames[turfVal] : '—';
+  const dateStr = date ? new Date(date).toLocaleDateString('en-IN',{day:'numeric',month:'short'}) : '—';
+  document.getElementById('s-datetime').textContent = (date && selectedSlotTime) ? `${dateStr} · ${selectedSlotTime}` : '—';
+  document.getElementById('s-duration').textContent = `${dur} hr${dur>1?'s':''}`;
+
+  if (turfVal) {
+    const rate = turfPrices[turfVal];
+    const total = rate * dur;
+    document.getElementById('s-rate').textContent = `₹${rate}/hr`;
+    document.getElementById('s-total').textContent = `₹${total}`;
+  } else {
+    document.getElementById('s-rate').textContent = '—';
+    document.getElementById('s-total').textContent = '—';
+  }
+}
+
+function confirmBooking() {
+  const turf = document.getElementById('turf-select').value;
+  const name = document.getElementById('user-name').value.trim();
+  const phone = document.getElementById('user-phone').value.trim();
+  const date = document.getElementById('booking-date').value;
+  const dur = document.getElementById('duration').value;
+
+  if (!turf || !name || !phone || !selectedSlotTime || !date) {
+    alert('Please fill in all required fields and select a time slot.');
+    return;
+  }
+
+  const ref = 'CRK' + Math.random().toString(36).substr(2,6).toUpperCase();
+  document.getElementById('ref-code').textContent = 'REF: ' + ref;
+  const dateStr = new Date(date).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
+  document.getElementById('confirm-summary').textContent = `${turfNames[turf]} · ${dateStr} · ${selectedSlotTime} · ${dur} hr${dur>1?'s':''}`;
+
+  document.getElementById('booking-form-area').style.display = 'none';
+  document.getElementById('success-screen').style.display = 'block';
+
+  const bookingsList = document.getElementById('bookings-list');
+  const newItem = document.createElement('div');
+  newItem.className = 'booking-item';
+  newItem.innerHTML = `
+    <div class="booking-icon">🏏</div>
+    <div class="booking-info">
+      <div class="bname">${turfNames[turf]}</div>
+      <div class="bmeta">${dateStr} · ${selectedSlotTime} · ${dur} hr${dur>1?'s':''}</div>
+    </div>
+    <span class="booking-status status-confirmed">Confirmed</span>`;
+  bookingsList.insertBefore(newItem, bookingsList.firstChild);
+}
+
+function newBooking() {
+  document.getElementById('booking-form-area').style.display = 'block';
+  document.getElementById('success-screen').style.display = 'none';
+  document.getElementById('turf-select').value = '';
+  document.getElementById('user-name').value = '';
+  document.getElementById('user-phone').value = '';
+  document.getElementById('team-name').value = '';
+  if (selectedSlotEl) { selectedSlotEl.classList.remove('selected-slot'); selectedSlotEl = null; }
+  selectedSlotTime = null;
+  selectedTurf = null;
+  document.querySelectorAll('.turf-card').forEach(c => c.classList.remove('selected'));
+  document.querySelectorAll('.select-btn').forEach(b => b.textContent = 'Select');
+  updateSummary();
+}
+</script>
