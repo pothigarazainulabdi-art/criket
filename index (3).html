@@ -1,0 +1,350 @@
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+#stage{width:100%;height:700px;position:relative;overflow:hidden;border-radius:14px;font-family:var(--font-sans)}
+#bgCanvas{position:absolute;inset:0;z-index:0;width:100%;height:100%}
+#threeCanvas{position:absolute;inset:0;z-index:1}
+#threeCanvas canvas{width:100%!important;height:100%!important;display:block}
+#vignette{position:absolute;inset:0;z-index:2;pointer-events:none;background:radial-gradient(ellipse at 50% 50%,transparent 30%,rgba(0,0,8,.7) 100%)}
+#scroller{position:absolute;inset:0;overflow-y:scroll;z-index:10;scrollbar-width:none}
+#scroller::-webkit-scrollbar{display:none}
+#inner{height:4500px}
+#hl{position:absolute;left:6%;top:50%;transform:translateY(-50%);z-index:5;pointer-events:none;max-width:410px}
+.badge{display:inline-flex;align-items:center;gap:7px;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:rgba(190,160,255,.8);margin-bottom:16px;font-weight:500}
+.bdot{width:6px;height:6px;border-radius:50%;background:#a78bfa;animation:bdpulse 2s ease-in-out infinite}
+@keyframes bdpulse{0%,100%{opacity:.35;transform:scale(.8)}50%{opacity:1;transform:scale(1.3)}}
+#hl h1{font-size:48px;font-weight:700;line-height:1.07;color:#fff;margin-bottom:18px;letter-spacing:-.025em}
+#hl h1 .g{background:linear-gradient(110deg,#c4b5fd 0%,#7c3aed 60%,#06b6d4 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;display:block}
+#hl p{font-size:14px;color:rgba(255,255,255,.42);line-height:1.75;max-width:290px}
+.cta-row{display:flex;align-items:center;gap:12px;margin-top:24px}
+.pill{display:inline-flex;align-items:center;gap:7px;padding:9px 18px;border-radius:99px;background:rgba(124,58,237,.2);border:1px solid rgba(167,139,250,.35);color:rgba(210,190,255,.9);font-size:11px;letter-spacing:.08em;font-weight:500}
+.pill-dot{width:5px;height:5px;border-radius:50%;background:#a78bfa;animation:bdpulse 1.5s ease-in-out infinite}
+.dash{width:22px;height:1px;background:rgba(255,255,255,.15)}
+#hud{position:absolute;bottom:22px;right:22px;z-index:6;pointer-events:none;display:flex;flex-direction:column;align-items:flex-end;gap:7px}
+#pct{font-size:11px;color:rgba(255,255,255,.3);letter-spacing:.12em;font-weight:500}
+#track{width:70px;height:2px;background:rgba(255,255,255,.07);border-radius:2px;overflow:hidden}
+#fill{height:100%;width:0%;background:linear-gradient(90deg,#7c3aed,#a78bfa);border-radius:2px;transition:width .08s linear}
+#chapter{position:absolute;bottom:22px;left:6%;z-index:6;pointer-events:none}
+#ch-label{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.2);font-weight:500}
+#ch-name{font-size:13px;color:rgba(190,160,255,.65);margin-top:4px;font-weight:500}
+#hint{position:absolute;bottom:22px;left:50%;transform:translateX(-50%);z-index:6;pointer-events:none;display:flex;flex-direction:column;align-items:center;gap:6px;transition:opacity .5s}
+#hint span{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.2)}
+.pulse-line{width:1px;height:20px;background:linear-gradient(to bottom,rgba(167,139,250,.5),transparent);animation:pulseLine 1.8s ease-in-out infinite}
+@keyframes pulseLine{0%{transform:scaleY(0);transform-origin:top;opacity:0}50%{transform:scaleY(1);transform-origin:top;opacity:1}51%{transform:scaleY(1);transform-origin:bottom}100%{transform:scaleY(0);transform-origin:bottom;opacity:0}}
+</style>
+
+<div id="stage">
+  <canvas id="bgCanvas"></canvas>
+  <div id="threeCanvas"></div>
+  <div id="vignette"></div>
+
+  <div id="hl">
+    <div class="badge"><div class="bdot"></div>Live · Three.js universe</div>
+    <h1>Scroll through<br><span class="g">infinity</span></h1>
+    <p>The universe breathes on its own — and moves with you. Scroll forward to journey deeper, reverse to rewind time.</p>
+    <div class="cta-row">
+      <div class="pill"><div class="pill-dot"></div>Scroll to explore</div>
+      <div class="dash"></div>
+    </div>
+  </div>
+
+  <div id="hud">
+    <span id="pct">0%</span>
+    <div id="track"><div id="fill"></div></div>
+  </div>
+  <div id="chapter">
+    <div id="ch-label">Chapter</div>
+    <div id="ch-name">Origin</div>
+  </div>
+  <div id="hint">
+    <span>Scroll</span>
+    <div class="pulse-line"></div>
+  </div>
+
+  <div id="scroller"><div id="inner"></div></div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(function(){
+  const stage = document.getElementById('stage');
+  const bgCvs = document.getElementById('bgCanvas');
+  const threeDiv = document.getElementById('threeCanvas');
+  const scroller = document.getElementById('scroller');
+  const fillEl = document.getElementById('fill');
+  const pctEl = document.getElementById('pct');
+  const hlEl = document.getElementById('hl');
+  const hintEl = document.getElementById('hint');
+  const chNameEl = document.getElementById('ch-name');
+
+  const W = stage.offsetWidth || 800;
+  const H = stage.offsetHeight || 700;
+
+  bgCvs.width = W; bgCvs.height = H;
+  const ctx = bgCvs.getContext('2d');
+
+  const CHAPTERS = ['Origin','Awakening','Expansion','Singularity','Beyond'];
+  const FRAMES = 200;
+  const SLOWDOWN = 0.6;
+
+  const bgStars = [];
+  for(let i=0;i<320;i++){
+    bgStars.push({
+      x: Math.random()*W, y: Math.random()*H,
+      r: .4+Math.random()*1.2,
+      speed: .015+Math.random()*.04,
+      phase: Math.random()*Math.PI*2,
+      color: Math.random()<.6 ? `rgba(200,180,255,` : Math.random()<.5 ? `rgba(150,200,255,` : `rgba(255,230,200,`
+    });
+  }
+
+  const shootingStars = [];
+  function spawnShoot(){
+    if(Math.random()<.3){
+      shootingStars.push({
+        x: Math.random()*W*.7+W*.1,
+        y: Math.random()*H*.4,
+        len: 60+Math.random()*100,
+        speed: 6+Math.random()*8,
+        life: 1, decay: .025+Math.random()*.02,
+        angle: .3+Math.random()*.4
+      });
+    }
+  }
+
+  const nebulaClouds = [
+    {x:W*.15, y:H*.25, rx:180, ry:90, color:'rgba(80,40,180,', base:.06},
+    {x:W*.8,  y:H*.6,  rx:160, ry:80, color:'rgba(20,80,160,', base:.05},
+    {x:W*.5,  y:H*.8,  rx:200, ry:70, color:'rgba(100,30,120,', base:.04},
+    {x:W*.9,  y:H*.15, rx:120, ry:60, color:'rgba(30,120,100,', base:.03},
+  ];
+
+  let bgTime = 0;
+  let bgScrollT = 0;
+
+  function drawBg(){
+    ctx.clearRect(0,0,W,H);
+
+    const grad = ctx.createRadialGradient(W*.5,H*.5,0,W*.5,H*.5,W*.8);
+    const s = bgScrollT;
+    const r1 = `rgba(${4+s*8},${4+s*4},${20+s*30},1)`;
+    const r2 = `rgba(${2+s*5},${2+s*2},${10+s*15},1)`;
+    const r3 = `rgba(${1},${1},${8+s*10},1)`;
+    grad.addColorStop(0, r1);
+    grad.addColorStop(.5, r2);
+    grad.addColorStop(1, r3);
+    ctx.fillStyle = grad;
+    ctx.fillRect(0,0,W,H);
+
+    nebulaClouds.forEach((n,i)=>{
+      const pulse = n.base + Math.sin(bgTime*.4+i)*n.base*.5;
+      const ngrad = ctx.createRadialGradient(n.x,n.y,0,n.x,n.y,n.rx);
+      ngrad.addColorStop(0, n.color+(pulse*2)+')');
+      ngrad.addColorStop(.5, n.color+pulse+')');
+      ngrad.addColorStop(1, n.color+'0)');
+      ctx.save();
+      ctx.scale(1, n.ry/n.rx);
+      ctx.fillStyle = ngrad;
+      ctx.beginPath();
+      ctx.arc(n.x, n.y*(n.rx/n.ry), n.rx, 0, Math.PI*2);
+      ctx.fill();
+      ctx.restore();
+    });
+
+    bgStars.forEach(s=>{
+      const twinkle = .3 + .7*(Math.sin(bgTime*s.speed*3+s.phase)*.5+.5);
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, s.r, 0, Math.PI*2);
+      ctx.fillStyle = s.color+(twinkle*.9)+')';
+      ctx.fill();
+    });
+
+    for(let i=shootingStars.length-1;i>=0;i--){
+      const ss = shootingStars[i];
+      const ex = ss.x + Math.cos(ss.angle)*ss.len*ss.life;
+      const ey = ss.y + Math.sin(ss.angle)*ss.len*ss.life;
+      const sg = ctx.createLinearGradient(ss.x,ss.y,ex,ey);
+      sg.addColorStop(0,'rgba(255,255,255,0)');
+      sg.addColorStop(.6,`rgba(200,180,255,${ss.life*.7})`);
+      sg.addColorStop(1,`rgba(255,255,255,${ss.life})`);
+      ctx.beginPath();
+      ctx.moveTo(ss.x,ss.y);
+      ctx.lineTo(ex,ey);
+      ctx.strokeStyle=sg;
+      ctx.lineWidth=1.2;
+      ctx.stroke();
+      ss.x+=Math.cos(ss.angle)*ss.speed;
+      ss.y+=Math.sin(ss.angle)*ss.speed;
+      ss.life-=ss.decay;
+      if(ss.life<=0) shootingStars.splice(i,1);
+    }
+
+    bgTime += .016;
+    if(bgTime%2<.02) spawnShoot();
+  }
+
+  const renderer = new THREE.WebGLRenderer({antialias:true,alpha:true});
+  renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+  renderer.setSize(W,H);
+  renderer.setClearColor(0x000000,0);
+  threeDiv.appendChild(renderer.domElement);
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(60,W/H,.1,1000);
+  camera.position.set(0,0,6);
+
+  function mkTorus(r,t,col,rx,ry,rz){
+    const m=new THREE.Mesh(
+      new THREE.TorusGeometry(r,t,32,120),
+      new THREE.MeshBasicMaterial({color:col,wireframe:false,transparent:true,opacity:.14})
+    );
+    m.rotation.set(rx,ry,rz);
+    return m;
+  }
+
+  const rings=[
+    mkTorus(1.4,.011,0x7c3aed,Math.PI*.28,0,0),
+    mkTorus(2.0,.008,0xa78bfa,Math.PI*.55,Math.PI*.2,0),
+    mkTorus(2.6,.006,0x4f46e5,Math.PI*.1,Math.PI*.45,.3),
+    mkTorus(3.2,.005,0x6d28d9,Math.PI*.7,Math.PI*.1,.6),
+    mkTorus(0.9,.013,0xc4b5fd,Math.PI*.82,Math.PI*.3,.1),
+    mkTorus(1.8,.007,0x06b6d4,Math.PI*.4,Math.PI*.6,.5),
+  ];
+  rings.forEach(r=>scene.add(r));
+
+  const core=new THREE.Mesh(
+    new THREE.IcosahedronGeometry(.5,4),
+    new THREE.MeshBasicMaterial({color:0x7c3aed,wireframe:true,transparent:true,opacity:.45})
+  );
+  scene.add(core);
+
+  const shell=new THREE.Mesh(
+    new THREE.IcosahedronGeometry(1.05,2),
+    new THREE.MeshBasicMaterial({color:0xa78bfa,wireframe:true,transparent:true,opacity:.12})
+  );
+  scene.add(shell);
+
+  const outerShell=new THREE.Mesh(
+    new THREE.IcosahedronGeometry(1.6,1),
+    new THREE.MeshBasicMaterial({color:0x06b6d4,wireframe:true,transparent:true,opacity:.06})
+  );
+  scene.add(outerShell);
+
+  const N=3000;
+  const sg=new THREE.BufferGeometry();
+  const sp=new Float32Array(N*3),sc=new Float32Array(N*3);
+  const pal=[[.47,.23,.93],[.64,.54,.98],[.30,.28,.89],[.78,.70,1],[.55,.35,.85],[.04,.71,.83]];
+  for(let i=0;i<N;i++){
+    const r=4+Math.random()*7,th=Math.random()*Math.PI*2,ph=Math.acos(2*Math.random()-1);
+    sp[i*3]=r*Math.sin(ph)*Math.cos(th);
+    sp[i*3+1]=r*Math.sin(ph)*Math.sin(th);
+    sp[i*3+2]=r*Math.cos(ph);
+    const c=pal[Math.floor(Math.random()*pal.length)];
+    sc[i*3]=c[0];sc[i*3+1]=c[1];sc[i*3+2]=c[2];
+  }
+  sg.setAttribute('position',new THREE.BufferAttribute(sp,3));
+  sg.setAttribute('color',new THREE.BufferAttribute(sc,3));
+  const stars3=new THREE.Points(sg,new THREE.PointsMaterial({size:.038,vertexColors:true,transparent:true,opacity:.75}));
+  scene.add(stars3);
+
+  const nebN=800;
+  const ng=new THREE.BufferGeometry();
+  const np2=new Float32Array(nebN*3),nc2=new Float32Array(nebN*3);
+  for(let i=0;i<nebN;i++){
+    const a=Math.random()*Math.PI*2,rad=1.0+Math.random()*1.5;
+    np2[i*3]=Math.cos(a)*rad*(1+.4*Math.random());
+    np2[i*3+1]=Math.sin(a)*rad*(1+.3*Math.random());
+    np2[i*3+2]=(Math.random()-.5)*.8;
+    nc2[i*3]=.4+Math.random()*.4;nc2[i*3+1]=.2+Math.random()*.2;nc2[i*3+2]=1;
+  }
+  ng.setAttribute('position',new THREE.BufferAttribute(np2,3));
+  ng.setAttribute('color',new THREE.BufferAttribute(nc2,3));
+  const nebula=new THREE.Points(ng,new THREE.PointsMaterial({size:.022,vertexColors:true,transparent:true,opacity:.3}));
+  scene.add(nebula);
+
+  let idleTime=0;
+  let smoothF=0,targetF=0,lastChapter=-1;
+
+  function applyFrame(f,idle){
+    const t=f/FRAMES;
+    const ang=t*Math.PI*2.8;
+    const ia=idle*.4;
+
+    rings[0].rotation.z=ang*.65+ia*.3;
+    rings[0].rotation.x=Math.PI*.28+ang*.28+Math.sin(idle*.5)*.05;
+    rings[1].rotation.z=-ang*.5+ia*.25;
+    rings[1].rotation.y=Math.PI*.2+ang*.38+Math.cos(idle*.4)*.04;
+    rings[2].rotation.x=Math.PI*.1+ang*.22+ia*.15;
+    rings[2].rotation.z=ang*.55;
+    rings[3].rotation.y=ang*.3+ia*.2;
+    rings[3].rotation.z=-ang*.4+Math.sin(idle*.3)*.06;
+    rings[4].rotation.x=Math.PI*.82+ang*.9-ia*.35;
+    rings[4].rotation.y=Math.PI*.3-ang*.35;
+    rings[5].rotation.z=ang*.45+ia*.28;
+    rings[5].rotation.x=Math.PI*.4+ang*.18;
+
+    rings[0].material.opacity=.14+t*.28+Math.sin(idle*.7)*.03;
+    rings[1].material.opacity=.12+t*.22;
+    rings[2].material.opacity=.10+t*.20;
+    rings[3].material.opacity=.08+t*.16;
+    rings[4].material.opacity=.16+t*.26;
+    rings[5].material.opacity=.11+t*.20;
+
+    core.rotation.x=ang*.85+idle*.6;
+    core.rotation.y=ang*1.15+idle*.45;
+    const cs=1+t*.9+Math.sin(idle*.5)*.04;
+    core.scale.setScalar(cs);
+    core.material.opacity=.3+t*.3+Math.sin(idle*.6)*.05;
+
+    shell.rotation.y=-ang*.3+idle*.2;
+    shell.rotation.z=ang*.2+idle*.15;
+    shell.scale.setScalar(1+t*1.2+Math.sin(idle*.4)*.03);
+
+    outerShell.rotation.x=idle*.1+ang*.1;
+    outerShell.rotation.y=idle*.12-ang*.08;
+    outerShell.material.opacity=.04+t*.08+Math.sin(idle*.3)*.02;
+
+    stars3.rotation.y=ang*.07+idle*.025;
+    stars3.rotation.x=ang*.035+idle*.015;
+    nebula.rotation.z=ang*.12+idle*.03;
+
+    const cx=Math.sin(ang*.35+idle*.15)*.8;
+    const cy=Math.cos(ang*.25+idle*.1)*.5;
+    camera.position.set(cx,cy,6-t*2.2);
+    camera.lookAt(cx*.1,cy*.1,0);
+  }
+
+  scroller.addEventListener('scroll',()=>{
+    const maxS=scroller.scrollHeight-scroller.clientHeight;
+    const raw=scroller.scrollTop/maxS;
+    targetF=Math.min(Math.max(raw*FRAMES*SLOWDOWN,0),FRAMES);
+
+    const pct=Math.round((targetF/FRAMES)*100);
+    fillEl.style.width=pct+'%';
+    pctEl.textContent=pct+'%';
+
+    const chIdx=Math.min(Math.floor((targetF/FRAMES)*CHAPTERS.length),CHAPTERS.length-1);
+    if(chIdx!==lastChapter){lastChapter=chIdx;chNameEl.textContent=CHAPTERS[chIdx];}
+
+    const st=scroller.scrollTop;
+    const py=-(st*.08);
+    const px=Math.sin(st*.0018)*10;
+    const sc2=1-Math.min(st*.00035,.14);
+    hlEl.style.transform=`translateY(calc(-50% + ${py}px)) translateX(${px}px) scale(${sc2})`;
+    hlEl.style.opacity=Math.max(0,1-st/460);
+    hintEl.style.opacity=st>60?'0':'1';
+  },{passive:true});
+
+  function loop(){
+    requestAnimationFrame(loop);
+    idleTime+=.012;
+    smoothF+=(targetF-smoothF)*.055;
+    drawBg();
+    applyFrame(smoothF,idleTime);
+    renderer.render(scene,camera);
+  }
+
+  applyFrame(0,0);
+  loop();
+})();
+</script>
