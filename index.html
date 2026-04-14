@@ -1,617 +1,350 @@
 
 <style>
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: var(--font-sans); }
-
-.hero {
-  background: linear-gradient(135deg, #0a3d1f 0%, #1a6b3a 60%, #2d8f52 100%);
-  border-radius: var(--border-radius-lg);
-  padding: 2.5rem 2rem 2rem;
-  color: white;
-  position: relative;
-  overflow: hidden;
-  margin-bottom: 1.5rem;
-}
-.hero::before {
-  content: '';
-  position: absolute;
-  right: -30px; top: -30px;
-  width: 200px; height: 200px;
-  border-radius: 50%;
-  background: rgba(255,255,255,0.04);
-}
-.hero::after {
-  content: '';
-  position: absolute;
-  right: 40px; bottom: -50px;
-  width: 140px; height: 140px;
-  border-radius: 50%;
-  background: rgba(255,255,255,0.04);
-}
-.hero-badge {
-  display: inline-block;
-  background: rgba(255,255,255,0.15);
-  border: 0.5px solid rgba(255,255,255,0.3);
-  border-radius: 20px;
-  padding: 4px 14px;
-  font-size: 12px;
-  margin-bottom: 1rem;
-  letter-spacing: 0.04em;
-}
-.hero h1 {
-  font-size: 28px;
-  font-weight: 500;
-  color: white;
-  margin-bottom: 0.4rem;
-  line-height: 1.2;
-}
-.hero p {
-  font-size: 14px;
-  opacity: 0.8;
-  margin-bottom: 1.5rem;
-}
-.hero-stats {
-  display: flex;
-  gap: 2rem;
-}
-.hero-stat span:first-child {
-  display: block;
-  font-size: 22px;
-  font-weight: 500;
-}
-.hero-stat span:last-child {
-  font-size: 12px;
-  opacity: 0.7;
-}
-
-.tabs {
-  display: flex;
-  gap: 4px;
-  background: var(--color-background-secondary);
-  border-radius: var(--border-radius-md);
-  padding: 4px;
-  margin-bottom: 1.5rem;
-}
-.tab {
-  flex: 1;
-  padding: 8px;
-  border: none;
-  background: transparent;
-  border-radius: 6px;
-  font-size: 13px;
-  cursor: pointer;
-  color: var(--color-text-secondary);
-  transition: all 0.15s;
-}
-.tab.active {
-  background: var(--color-background-primary);
-  color: var(--color-text-primary);
-  border: 0.5px solid var(--color-border-tertiary);
-  font-weight: 500;
-}
-
-.section { display: none; }
-.section.active { display: block; }
-
-.turfs-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 12px;
-  margin-bottom: 1.5rem;
-}
-.turf-card {
-  background: var(--color-background-primary);
-  border: 0.5px solid var(--color-border-tertiary);
-  border-radius: var(--border-radius-lg);
-  overflow: hidden;
-  cursor: pointer;
-  transition: border-color 0.15s;
-}
-.turf-card:hover { border-color: var(--color-border-primary); }
-.turf-card.selected { border: 2px solid #1a6b3a; }
-.turf-img {
-  height: 110px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 36px;
-  position: relative;
-}
-.turf-img-a { background: linear-gradient(135deg, #0a3d1f, #1a6b3a); }
-.turf-img-b { background: linear-gradient(135deg, #14456e, #1a6b8a); }
-.turf-img-c { background: linear-gradient(135deg, #3d1a0a, #8a3d1a); }
-.availability-badge {
-  position: absolute;
-  top: 8px; right: 8px;
-  font-size: 11px;
-  padding: 2px 8px;
-  border-radius: 20px;
-  font-weight: 500;
-}
-.avail-open { background: #d4edda; color: #155724; }
-.avail-few { background: #fff3cd; color: #856404; }
-.turf-body { padding: 12px; }
-.turf-name { font-size: 15px; font-weight: 500; margin-bottom: 4px; color: var(--color-text-primary); }
-.turf-meta { font-size: 12px; color: var(--color-text-secondary); margin-bottom: 10px; }
-.turf-features { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
-.feature-pill {
-  font-size: 11px;
-  padding: 2px 8px;
-  border-radius: 20px;
-  background: var(--color-background-secondary);
-  color: var(--color-text-secondary);
-  border: 0.5px solid var(--color-border-tertiary);
-}
-.turf-price {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-}
-.turf-price .amount { font-size: 18px; font-weight: 500; color: #1a6b3a; }
-.turf-price .per { font-size: 12px; color: var(--color-text-secondary); }
-.select-btn {
-  font-size: 12px;
-  padding: 5px 14px;
-  border-radius: 6px;
-  border: 0.5px solid #1a6b3a;
-  background: transparent;
-  color: #1a6b3a;
-  cursor: pointer;
-  font-weight: 500;
-}
-.turf-card.selected .select-btn {
-  background: #1a6b3a;
-  color: white;
-}
-
-.booking-form {
-  background: var(--color-background-primary);
-  border: 0.5px solid var(--color-border-tertiary);
-  border-radius: var(--border-radius-lg);
-  padding: 1.25rem;
-  margin-bottom: 1.5rem;
-}
-.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px; }
-.form-group { display: flex; flex-direction: column; gap: 6px; }
-.form-group.full { grid-column: span 2; }
-label { font-size: 12px; font-weight: 500; color: var(--color-text-secondary); }
-input, select {
-  padding: 9px 12px;
-  border: 0.5px solid var(--color-border-secondary);
-  border-radius: var(--border-radius-md);
-  background: var(--color-background-secondary);
-  color: var(--color-text-primary);
-  font-size: 14px;
-  font-family: var(--font-sans);
-}
-input:focus, select:focus { outline: none; border-color: #1a6b3a; }
-
-.slots-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
-.slot {
-  padding: 8px 4px;
-  text-align: center;
-  border: 0.5px solid var(--color-border-tertiary);
-  border-radius: var(--border-radius-md);
-  font-size: 12px;
-  cursor: pointer;
-  color: var(--color-text-primary);
-  background: var(--color-background-secondary);
-  transition: all 0.15s;
-}
-.slot:hover:not(.booked) { border-color: #1a6b3a; }
-.slot.selected-slot { background: #1a6b3a; color: white; border-color: #1a6b3a; font-weight: 500; }
-.slot.booked { background: var(--color-background-secondary); color: var(--color-text-secondary); cursor: not-allowed; opacity: 0.5; text-decoration: line-through; }
-
-.summary-card {
-  background: var(--color-background-secondary);
-  border-radius: var(--border-radius-md);
-  padding: 1rem;
-  margin: 1rem 0;
-}
-.summary-row {
-  display: flex;
-  justify-content: space-between;
-  font-size: 13px;
-  padding: 4px 0;
-  color: var(--color-text-secondary);
-}
-.summary-row.total {
-  border-top: 0.5px solid var(--color-border-tertiary);
-  margin-top: 8px;
-  padding-top: 10px;
-  font-size: 15px;
-  font-weight: 500;
-  color: var(--color-text-primary);
-}
-.book-btn {
-  width: 100%;
-  padding: 12px;
-  background: #1a6b3a;
-  color: white;
-  border: none;
-  border-radius: var(--border-radius-md);
-  font-size: 15px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: opacity 0.15s;
-}
-.book-btn:hover { opacity: 0.9; }
-.book-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-
-.my-bookings {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-.booking-item {
-  background: var(--color-background-primary);
-  border: 0.5px solid var(--color-border-tertiary);
-  border-radius: var(--border-radius-lg);
-  padding: 1rem 1.25rem;
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-.booking-icon {
-  width: 44px; height: 44px;
-  border-radius: 10px;
-  background: #e1f5ee;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 20px;
-  flex-shrink: 0;
-}
-.booking-info { flex: 1; }
-.booking-info .bname { font-size: 14px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 3px; }
-.booking-info .bmeta { font-size: 12px; color: var(--color-text-secondary); }
-.booking-status {
-  font-size: 11px;
-  font-weight: 500;
-  padding: 4px 10px;
-  border-radius: 20px;
-}
-.status-confirmed { background: #d4edda; color: #155724; }
-.status-pending { background: #fff3cd; color: #856404; }
-
-.success-screen {
-  text-align: center;
-  padding: 2.5rem 1rem;
-  display: none;
-}
-.success-icon {
-  width: 64px; height: 64px;
-  background: #d4edda;
-  border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  margin: 0 auto 1rem;
-  font-size: 28px;
-}
-.success-screen h2 { font-size: 20px; font-weight: 500; margin-bottom: 0.5rem; color: var(--color-text-primary); }
-.success-screen p { font-size: 14px; color: var(--color-text-secondary); margin-bottom: 1.5rem; }
-.ref-badge {
-  display: inline-block;
-  background: var(--color-background-secondary);
-  border: 0.5px solid var(--color-border-tertiary);
-  border-radius: var(--border-radius-md);
-  padding: 8px 20px;
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--color-text-primary);
-  margin-bottom: 1.5rem;
-}
+*{margin:0;padding:0;box-sizing:border-box}
+#stage{width:100%;height:700px;position:relative;overflow:hidden;border-radius:14px;font-family:var(--font-sans)}
+#bgCanvas{position:absolute;inset:0;z-index:0;width:100%;height:100%}
+#threeCanvas{position:absolute;inset:0;z-index:1}
+#threeCanvas canvas{width:100%!important;height:100%!important;display:block}
+#vignette{position:absolute;inset:0;z-index:2;pointer-events:none;background:radial-gradient(ellipse at 50% 50%,transparent 30%,rgba(0,0,8,.7) 100%)}
+#scroller{position:absolute;inset:0;overflow-y:scroll;z-index:10;scrollbar-width:none}
+#scroller::-webkit-scrollbar{display:none}
+#inner{height:4500px}
+#hl{position:absolute;left:6%;top:50%;transform:translateY(-50%);z-index:5;pointer-events:none;max-width:410px}
+.badge{display:inline-flex;align-items:center;gap:7px;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:rgba(190,160,255,.8);margin-bottom:16px;font-weight:500}
+.bdot{width:6px;height:6px;border-radius:50%;background:#a78bfa;animation:bdpulse 2s ease-in-out infinite}
+@keyframes bdpulse{0%,100%{opacity:.35;transform:scale(.8)}50%{opacity:1;transform:scale(1.3)}}
+#hl h1{font-size:48px;font-weight:700;line-height:1.07;color:#fff;margin-bottom:18px;letter-spacing:-.025em}
+#hl h1 .g{background:linear-gradient(110deg,#c4b5fd 0%,#7c3aed 60%,#06b6d4 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;display:block}
+#hl p{font-size:14px;color:rgba(255,255,255,.42);line-height:1.75;max-width:290px}
+.cta-row{display:flex;align-items:center;gap:12px;margin-top:24px}
+.pill{display:inline-flex;align-items:center;gap:7px;padding:9px 18px;border-radius:99px;background:rgba(124,58,237,.2);border:1px solid rgba(167,139,250,.35);color:rgba(210,190,255,.9);font-size:11px;letter-spacing:.08em;font-weight:500}
+.pill-dot{width:5px;height:5px;border-radius:50%;background:#a78bfa;animation:bdpulse 1.5s ease-in-out infinite}
+.dash{width:22px;height:1px;background:rgba(255,255,255,.15)}
+#hud{position:absolute;bottom:22px;right:22px;z-index:6;pointer-events:none;display:flex;flex-direction:column;align-items:flex-end;gap:7px}
+#pct{font-size:11px;color:rgba(255,255,255,.3);letter-spacing:.12em;font-weight:500}
+#track{width:70px;height:2px;background:rgba(255,255,255,.07);border-radius:2px;overflow:hidden}
+#fill{height:100%;width:0%;background:linear-gradient(90deg,#7c3aed,#a78bfa);border-radius:2px;transition:width .08s linear}
+#chapter{position:absolute;bottom:22px;left:6%;z-index:6;pointer-events:none}
+#ch-label{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.2);font-weight:500}
+#ch-name{font-size:13px;color:rgba(190,160,255,.65);margin-top:4px;font-weight:500}
+#hint{position:absolute;bottom:22px;left:50%;transform:translateX(-50%);z-index:6;pointer-events:none;display:flex;flex-direction:column;align-items:center;gap:6px;transition:opacity .5s}
+#hint span{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.2)}
+.pulse-line{width:1px;height:20px;background:linear-gradient(to bottom,rgba(167,139,250,.5),transparent);animation:pulseLine 1.8s ease-in-out infinite}
+@keyframes pulseLine{0%{transform:scaleY(0);transform-origin:top;opacity:0}50%{transform:scaleY(1);transform-origin:top;opacity:1}51%{transform:scaleY(1);transform-origin:bottom}100%{transform:scaleY(0);transform-origin:bottom;opacity:0}}
 </style>
 
-<h2 class="sr-only">Cricket turf booking website — browse turfs, pick a slot, and confirm your booking</h2>
+<div id="stage">
+  <canvas id="bgCanvas"></canvas>
+  <div id="threeCanvas"></div>
+  <div id="vignette"></div>
 
-<div class="hero">
-  <div class="hero-badge">Premium Cricket Facilities</div>
-  <h1>Book your cricket turf</h1>
-  <p>Professional-grade pitches — available 6 AM to 10 PM daily</p>
-  <div class="hero-stats">
-    <div class="hero-stat"><span>3</span><span>Turfs</span></div>
-    <div class="hero-stat"><span>16</span><span>Slots/day</span></div>
-    <div class="hero-stat"><span>4.8★</span><span>Rated</span></div>
+  <div id="hl">
+    <div class="badge"><div class="bdot"></div>Live · Three.js universe</div>
+    <h1>Scroll through<br><span class="g">infinity</span></h1>
+    <p>The universe breathes on its own — and moves with you. Scroll forward to journey deeper, reverse to rewind time.</p>
+    <div class="cta-row">
+      <div class="pill"><div class="pill-dot"></div>Scroll to explore</div>
+      <div class="dash"></div>
+    </div>
   </div>
+
+  <div id="hud">
+    <span id="pct">0%</span>
+    <div id="track"><div id="fill"></div></div>
+  </div>
+  <div id="chapter">
+    <div id="ch-label">Chapter</div>
+    <div id="ch-name">Origin</div>
+  </div>
+  <div id="hint">
+    <span>Scroll</span>
+    <div class="pulse-line"></div>
+  </div>
+
+  <div id="scroller"><div id="inner"></div></div>
 </div>
 
-<div class="tabs">
-  <button class="tab active" onclick="switchTab('browse')">Browse Turfs</button>
-  <button class="tab" onclick="switchTab('book')">Book a Slot</button>
-  <button class="tab" onclick="switchTab('mybookings')">My Bookings</button>
-</div>
-
-<div id="browse" class="section active">
-  <div class="turfs-grid">
-    <div class="turf-card" id="card-1" onclick="selectTurf(1)">
-      <div class="turf-img turf-img-a">
-        🏏
-        <span class="availability-badge avail-open">Available</span>
-      </div>
-      <div class="turf-body">
-        <div class="turf-name">Green Field Turf A</div>
-        <div class="turf-meta">Full pitch · Floodlit · Capacity 22</div>
-        <div class="turf-features">
-          <span class="feature-pill">Astroturf</span>
-          <span class="feature-pill">Night lights</span>
-          <span class="feature-pill">Nets</span>
-        </div>
-        <div class="turf-price">
-          <div><span class="amount">₹800</span> <span class="per">/hr</span></div>
-          <button class="select-btn" id="selbtn-1">Select</button>
-        </div>
-      </div>
-    </div>
-    <div class="turf-card" id="card-2" onclick="selectTurf(2)">
-      <div class="turf-img turf-img-b">
-        🏏
-        <span class="availability-badge avail-few">3 slots left</span>
-      </div>
-      <div class="turf-body">
-        <div class="turf-name">Blue Pitch Turf B</div>
-        <div class="turf-meta">Half pitch · Covered · Capacity 14</div>
-        <div class="turf-features">
-          <span class="feature-pill">Matting</span>
-          <span class="feature-pill">Covered</span>
-          <span class="feature-pill">Scoreboard</span>
-        </div>
-        <div class="turf-price">
-          <div><span class="amount">₹550</span> <span class="per">/hr</span></div>
-          <button class="select-btn" id="selbtn-2">Select</button>
-        </div>
-      </div>
-    </div>
-    <div class="turf-card" id="card-3" onclick="selectTurf(3)">
-      <div class="turf-img turf-img-c">
-        🏏
-        <span class="availability-badge avail-open">Available</span>
-      </div>
-      <div class="turf-body">
-        <div class="turf-name">Red Zone Practice Net</div>
-        <div class="turf-meta">Practice only · Indoors · Capacity 6</div>
-        <div class="turf-features">
-          <span class="feature-pill">Indoor</span>
-          <span class="feature-pill">Bowling machine</span>
-        </div>
-        <div class="turf-price">
-          <div><span class="amount">₹350</span> <span class="per">/hr</span></div>
-          <button class="select-btn" id="selbtn-3">Select</button>
-        </div>
-      </div>
-    </div>
-  </div>
-  <div style="text-align:center;">
-    <button class="book-btn" style="max-width:280px;" onclick="switchTab('book')">Proceed to booking ↗</button>
-  </div>
-</div>
-
-<div id="book" class="section">
-  <div id="booking-form-area">
-    <div class="booking-form">
-      <div style="font-size:15px;font-weight:500;color:var(--color-text-primary);margin-bottom:1rem;">Booking details</div>
-      <div class="form-row">
-        <div class="form-group">
-          <label>Select turf</label>
-          <select id="turf-select" onchange="updateSummary()">
-            <option value="">— Choose a turf —</option>
-            <option value="1" data-price="800">Green Field Turf A — ₹800/hr</option>
-            <option value="2" data-price="550">Blue Pitch Turf B — ₹550/hr</option>
-            <option value="3" data-price="350">Red Zone Practice Net — ₹350/hr</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>Date</label>
-          <input type="date" id="booking-date" onchange="updateSummary()" />
-        </div>
-      </div>
-      <div class="form-row">
-        <div class="form-group full">
-          <label>Select time slot</label>
-          <div class="slots-grid" id="slots-grid">
-            <div class="slot booked">6:00 AM</div>
-            <div class="slot" onclick="selectSlot(this,'7:00 AM')">7:00 AM</div>
-            <div class="slot" onclick="selectSlot(this,'8:00 AM')">8:00 AM</div>
-            <div class="slot booked">9:00 AM</div>
-            <div class="slot" onclick="selectSlot(this,'10:00 AM')">10:00 AM</div>
-            <div class="slot" onclick="selectSlot(this,'11:00 AM')">11:00 AM</div>
-            <div class="slot" onclick="selectSlot(this,'12:00 PM')">12:00 PM</div>
-            <div class="slot booked">1:00 PM</div>
-            <div class="slot" onclick="selectSlot(this,'2:00 PM')">2:00 PM</div>
-            <div class="slot" onclick="selectSlot(this,'3:00 PM')">3:00 PM</div>
-            <div class="slot booked">4:00 PM</div>
-            <div class="slot" onclick="selectSlot(this,'5:00 PM')">5:00 PM</div>
-            <div class="slot" onclick="selectSlot(this,'6:00 PM')">6:00 PM</div>
-            <div class="slot" onclick="selectSlot(this,'7:00 PM')">7:00 PM</div>
-            <div class="slot booked">8:00 PM</div>
-            <div class="slot" onclick="selectSlot(this,'9:00 PM')">9:00 PM</div>
-          </div>
-        </div>
-      </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label>Duration (hours)</label>
-          <select id="duration" onchange="updateSummary()">
-            <option value="1">1 hour</option>
-            <option value="2">2 hours</option>
-            <option value="3">3 hours</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>Your name</label>
-          <input type="text" id="user-name" placeholder="Full name" />
-        </div>
-      </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label>Phone number</label>
-          <input type="tel" id="user-phone" placeholder="+91 XXXXX XXXXX" />
-        </div>
-        <div class="form-group">
-          <label>Team / club name</label>
-          <input type="text" id="team-name" placeholder="Optional" />
-        </div>
-      </div>
-    </div>
-
-    <div class="booking-form" style="margin-bottom:1rem;">
-      <div style="font-size:14px;font-weight:500;color:var(--color-text-primary);margin-bottom:0.75rem;">Booking summary</div>
-      <div class="summary-card">
-        <div class="summary-row"><span>Turf</span><span id="s-turf">—</span></div>
-        <div class="summary-row"><span>Date & time</span><span id="s-datetime">—</span></div>
-        <div class="summary-row"><span>Duration</span><span id="s-duration">—</span></div>
-        <div class="summary-row"><span>Rate</span><span id="s-rate">—</span></div>
-        <div class="summary-row total"><span>Total</span><span id="s-total">—</span></div>
-      </div>
-      <button class="book-btn" onclick="confirmBooking()">Confirm & pay ↗</button>
-    </div>
-  </div>
-
-  <div class="success-screen" id="success-screen">
-    <div class="success-icon">✓</div>
-    <h2>Booking confirmed!</h2>
-    <p>Your slot has been reserved. Check your phone for confirmation.</p>
-    <div class="ref-badge" id="ref-code">REF: —</div>
-    <div id="confirm-summary" style="font-size:13px;color:var(--color-text-secondary);margin-bottom:1.5rem;"></div>
-    <button class="book-btn" style="max-width:200px;margin:0 auto;" onclick="newBooking()">Book another slot</button>
-  </div>
-</div>
-
-<div id="mybookings" class="section">
-  <div class="my-bookings" id="bookings-list">
-    <div class="booking-item">
-      <div class="booking-icon">🏏</div>
-      <div class="booking-info">
-        <div class="bname">Green Field Turf A</div>
-        <div class="bmeta">Apr 10 · 6:00 PM – 8:00 PM · 2 hrs</div>
-      </div>
-      <span class="booking-status status-confirmed">Confirmed</span>
-    </div>
-    <div class="booking-item">
-      <div class="booking-icon">🏏</div>
-      <div class="booking-info">
-        <div class="bname">Red Zone Practice Net</div>
-        <div class="bmeta">Apr 12 · 7:00 AM – 8:00 AM · 1 hr</div>
-      </div>
-      <span class="booking-status status-pending">Pending</span>
-    </div>
-  </div>
-</div>
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
-let selectedTurf = null;
-let selectedSlotEl = null;
-let selectedSlotTime = null;
+(function(){
+  const stage = document.getElementById('stage');
+  const bgCvs = document.getElementById('bgCanvas');
+  const threeDiv = document.getElementById('threeCanvas');
+  const scroller = document.getElementById('scroller');
+  const fillEl = document.getElementById('fill');
+  const pctEl = document.getElementById('pct');
+  const hlEl = document.getElementById('hl');
+  const hintEl = document.getElementById('hint');
+  const chNameEl = document.getElementById('ch-name');
 
-const turfPrices = { '1': 800, '2': 550, '3': 350 };
-const turfNames = { '1': 'Green Field Turf A', '2': 'Blue Pitch Turf B', '3': 'Red Zone Practice Net' };
+  const W = stage.offsetWidth || 800;
+  const H = stage.offsetHeight || 700;
 
-const dateInput = document.getElementById('booking-date');
-const today = new Date();
-const yyyy = today.getFullYear();
-const mm = String(today.getMonth()+1).padStart(2,'0');
-const dd = String(today.getDate()).padStart(2,'0');
-dateInput.value = `${yyyy}-${mm}-${dd}`;
-dateInput.min = `${yyyy}-${mm}-${dd}`;
+  bgCvs.width = W; bgCvs.height = H;
+  const ctx = bgCvs.getContext('2d');
 
-function switchTab(id) {
-  document.querySelectorAll('.tab').forEach((t,i) => {
-    t.classList.toggle('active', ['browse','book','mybookings'][i] === id);
-  });
-  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-}
+  const CHAPTERS = ['Origin','Awakening','Expansion','Singularity','Beyond'];
+  const FRAMES = 200;
+  const SLOWDOWN = 0.6;
 
-function selectTurf(id) {
-  selectedTurf = id;
-  document.querySelectorAll('.turf-card').forEach(c => c.classList.remove('selected'));
-  document.querySelectorAll('.select-btn').forEach(b => b.textContent = 'Select');
-  document.getElementById('card-'+id).classList.add('selected');
-  document.getElementById('selbtn-'+id).textContent = 'Selected ✓';
-  document.getElementById('turf-select').value = id;
-  updateSummary();
-}
-
-function selectSlot(el, time) {
-  if (el.classList.contains('booked')) return;
-  if (selectedSlotEl) selectedSlotEl.classList.remove('selected-slot');
-  el.classList.add('selected-slot');
-  selectedSlotEl = el;
-  selectedSlotTime = time;
-  updateSummary();
-}
-
-function updateSummary() {
-  const turfVal = document.getElementById('turf-select').value;
-  const dur = parseInt(document.getElementById('duration').value);
-  const date = document.getElementById('booking-date').value;
-
-  if (turfVal) {
-    selectedTurf = turfVal;
-    document.querySelectorAll('.turf-card').forEach(c => c.classList.remove('selected'));
-    document.querySelectorAll('.select-btn').forEach(b => b.textContent = 'Select');
-    document.getElementById('card-'+turfVal).classList.add('selected');
-    document.getElementById('selbtn-'+turfVal).textContent = 'Selected ✓';
+  const bgStars = [];
+  for(let i=0;i<320;i++){
+    bgStars.push({
+      x: Math.random()*W, y: Math.random()*H,
+      r: .4+Math.random()*1.2,
+      speed: .015+Math.random()*.04,
+      phase: Math.random()*Math.PI*2,
+      color: Math.random()<.6 ? `rgba(200,180,255,` : Math.random()<.5 ? `rgba(150,200,255,` : `rgba(255,230,200,`
+    });
   }
 
-  document.getElementById('s-turf').textContent = turfVal ? turfNames[turfVal] : '—';
-  const dateStr = date ? new Date(date).toLocaleDateString('en-IN',{day:'numeric',month:'short'}) : '—';
-  document.getElementById('s-datetime').textContent = (date && selectedSlotTime) ? `${dateStr} · ${selectedSlotTime}` : '—';
-  document.getElementById('s-duration').textContent = `${dur} hr${dur>1?'s':''}`;
-
-  if (turfVal) {
-    const rate = turfPrices[turfVal];
-    const total = rate * dur;
-    document.getElementById('s-rate').textContent = `₹${rate}/hr`;
-    document.getElementById('s-total').textContent = `₹${total}`;
-  } else {
-    document.getElementById('s-rate').textContent = '—';
-    document.getElementById('s-total').textContent = '—';
-  }
-}
-
-function confirmBooking() {
-  const turf = document.getElementById('turf-select').value;
-  const name = document.getElementById('user-name').value.trim();
-  const phone = document.getElementById('user-phone').value.trim();
-  const date = document.getElementById('booking-date').value;
-  const dur = document.getElementById('duration').value;
-
-  if (!turf || !name || !phone || !selectedSlotTime || !date) {
-    alert('Please fill in all required fields and select a time slot.');
-    return;
+  const shootingStars = [];
+  function spawnShoot(){
+    if(Math.random()<.3){
+      shootingStars.push({
+        x: Math.random()*W*.7+W*.1,
+        y: Math.random()*H*.4,
+        len: 60+Math.random()*100,
+        speed: 6+Math.random()*8,
+        life: 1, decay: .025+Math.random()*.02,
+        angle: .3+Math.random()*.4
+      });
+    }
   }
 
-  const ref = 'CRK' + Math.random().toString(36).substr(2,6).toUpperCase();
-  document.getElementById('ref-code').textContent = 'REF: ' + ref;
-  const dateStr = new Date(date).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
-  document.getElementById('confirm-summary').textContent = `${turfNames[turf]} · ${dateStr} · ${selectedSlotTime} · ${dur} hr${dur>1?'s':''}`;
+  const nebulaClouds = [
+    {x:W*.15, y:H*.25, rx:180, ry:90, color:'rgba(80,40,180,', base:.06},
+    {x:W*.8,  y:H*.6,  rx:160, ry:80, color:'rgba(20,80,160,', base:.05},
+    {x:W*.5,  y:H*.8,  rx:200, ry:70, color:'rgba(100,30,120,', base:.04},
+    {x:W*.9,  y:H*.15, rx:120, ry:60, color:'rgba(30,120,100,', base:.03},
+  ];
 
-  document.getElementById('booking-form-area').style.display = 'none';
-  document.getElementById('success-screen').style.display = 'block';
+  let bgTime = 0;
+  let bgScrollT = 0;
 
-  const bookingsList = document.getElementById('bookings-list');
-  const newItem = document.createElement('div');
-  newItem.className = 'booking-item';
-  newItem.innerHTML = `
-    <div class="booking-icon">🏏</div>
-    <div class="booking-info">
-      <div class="bname">${turfNames[turf]}</div>
-      <div class="bmeta">${dateStr} · ${selectedSlotTime} · ${dur} hr${dur>1?'s':''}</div>
-    </div>
-    <span class="booking-status status-confirmed">Confirmed</span>`;
-  bookingsList.insertBefore(newItem, bookingsList.firstChild);
-}
+  function drawBg(){
+    ctx.clearRect(0,0,W,H);
 
-function newBooking() {
-  document.getElementById('booking-form-area').style.display = 'block';
-  document.getElementById('success-screen').style.display = 'none';
-  document.getElementById('turf-select').value = '';
-  document.getElementById('user-name').value = '';
-  document.getElementById('user-phone').value = '';
-  document.getElementById('team-name').value = '';
-  if (selectedSlotEl) { selectedSlotEl.classList.remove('selected-slot'); selectedSlotEl = null; }
-  selectedSlotTime = null;
-  selectedTurf = null;
-  document.querySelectorAll('.turf-card').forEach(c => c.classList.remove('selected'));
-  document.querySelectorAll('.select-btn').forEach(b => b.textContent = 'Select');
-  updateSummary();
-}
+    const grad = ctx.createRadialGradient(W*.5,H*.5,0,W*.5,H*.5,W*.8);
+    const s = bgScrollT;
+    const r1 = `rgba(${4+s*8},${4+s*4},${20+s*30},1)`;
+    const r2 = `rgba(${2+s*5},${2+s*2},${10+s*15},1)`;
+    const r3 = `rgba(${1},${1},${8+s*10},1)`;
+    grad.addColorStop(0, r1);
+    grad.addColorStop(.5, r2);
+    grad.addColorStop(1, r3);
+    ctx.fillStyle = grad;
+    ctx.fillRect(0,0,W,H);
+
+    nebulaClouds.forEach((n,i)=>{
+      const pulse = n.base + Math.sin(bgTime*.4+i)*n.base*.5;
+      const ngrad = ctx.createRadialGradient(n.x,n.y,0,n.x,n.y,n.rx);
+      ngrad.addColorStop(0, n.color+(pulse*2)+')');
+      ngrad.addColorStop(.5, n.color+pulse+')');
+      ngrad.addColorStop(1, n.color+'0)');
+      ctx.save();
+      ctx.scale(1, n.ry/n.rx);
+      ctx.fillStyle = ngrad;
+      ctx.beginPath();
+      ctx.arc(n.x, n.y*(n.rx/n.ry), n.rx, 0, Math.PI*2);
+      ctx.fill();
+      ctx.restore();
+    });
+
+    bgStars.forEach(s=>{
+      const twinkle = .3 + .7*(Math.sin(bgTime*s.speed*3+s.phase)*.5+.5);
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, s.r, 0, Math.PI*2);
+      ctx.fillStyle = s.color+(twinkle*.9)+')';
+      ctx.fill();
+    });
+
+    for(let i=shootingStars.length-1;i>=0;i--){
+      const ss = shootingStars[i];
+      const ex = ss.x + Math.cos(ss.angle)*ss.len*ss.life;
+      const ey = ss.y + Math.sin(ss.angle)*ss.len*ss.life;
+      const sg = ctx.createLinearGradient(ss.x,ss.y,ex,ey);
+      sg.addColorStop(0,'rgba(255,255,255,0)');
+      sg.addColorStop(.6,`rgba(200,180,255,${ss.life*.7})`);
+      sg.addColorStop(1,`rgba(255,255,255,${ss.life})`);
+      ctx.beginPath();
+      ctx.moveTo(ss.x,ss.y);
+      ctx.lineTo(ex,ey);
+      ctx.strokeStyle=sg;
+      ctx.lineWidth=1.2;
+      ctx.stroke();
+      ss.x+=Math.cos(ss.angle)*ss.speed;
+      ss.y+=Math.sin(ss.angle)*ss.speed;
+      ss.life-=ss.decay;
+      if(ss.life<=0) shootingStars.splice(i,1);
+    }
+
+    bgTime += .016;
+    if(bgTime%2<.02) spawnShoot();
+  }
+
+  const renderer = new THREE.WebGLRenderer({antialias:true,alpha:true});
+  renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+  renderer.setSize(W,H);
+  renderer.setClearColor(0x000000,0);
+  threeDiv.appendChild(renderer.domElement);
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(60,W/H,.1,1000);
+  camera.position.set(0,0,6);
+
+  function mkTorus(r,t,col,rx,ry,rz){
+    const m=new THREE.Mesh(
+      new THREE.TorusGeometry(r,t,32,120),
+      new THREE.MeshBasicMaterial({color:col,wireframe:false,transparent:true,opacity:.14})
+    );
+    m.rotation.set(rx,ry,rz);
+    return m;
+  }
+
+  const rings=[
+    mkTorus(1.4,.011,0x7c3aed,Math.PI*.28,0,0),
+    mkTorus(2.0,.008,0xa78bfa,Math.PI*.55,Math.PI*.2,0),
+    mkTorus(2.6,.006,0x4f46e5,Math.PI*.1,Math.PI*.45,.3),
+    mkTorus(3.2,.005,0x6d28d9,Math.PI*.7,Math.PI*.1,.6),
+    mkTorus(0.9,.013,0xc4b5fd,Math.PI*.82,Math.PI*.3,.1),
+    mkTorus(1.8,.007,0x06b6d4,Math.PI*.4,Math.PI*.6,.5),
+  ];
+  rings.forEach(r=>scene.add(r));
+
+  const core=new THREE.Mesh(
+    new THREE.IcosahedronGeometry(.5,4),
+    new THREE.MeshBasicMaterial({color:0x7c3aed,wireframe:true,transparent:true,opacity:.45})
+  );
+  scene.add(core);
+
+  const shell=new THREE.Mesh(
+    new THREE.IcosahedronGeometry(1.05,2),
+    new THREE.MeshBasicMaterial({color:0xa78bfa,wireframe:true,transparent:true,opacity:.12})
+  );
+  scene.add(shell);
+
+  const outerShell=new THREE.Mesh(
+    new THREE.IcosahedronGeometry(1.6,1),
+    new THREE.MeshBasicMaterial({color:0x06b6d4,wireframe:true,transparent:true,opacity:.06})
+  );
+  scene.add(outerShell);
+
+  const N=3000;
+  const sg=new THREE.BufferGeometry();
+  const sp=new Float32Array(N*3),sc=new Float32Array(N*3);
+  const pal=[[.47,.23,.93],[.64,.54,.98],[.30,.28,.89],[.78,.70,1],[.55,.35,.85],[.04,.71,.83]];
+  for(let i=0;i<N;i++){
+    const r=4+Math.random()*7,th=Math.random()*Math.PI*2,ph=Math.acos(2*Math.random()-1);
+    sp[i*3]=r*Math.sin(ph)*Math.cos(th);
+    sp[i*3+1]=r*Math.sin(ph)*Math.sin(th);
+    sp[i*3+2]=r*Math.cos(ph);
+    const c=pal[Math.floor(Math.random()*pal.length)];
+    sc[i*3]=c[0];sc[i*3+1]=c[1];sc[i*3+2]=c[2];
+  }
+  sg.setAttribute('position',new THREE.BufferAttribute(sp,3));
+  sg.setAttribute('color',new THREE.BufferAttribute(sc,3));
+  const stars3=new THREE.Points(sg,new THREE.PointsMaterial({size:.038,vertexColors:true,transparent:true,opacity:.75}));
+  scene.add(stars3);
+
+  const nebN=800;
+  const ng=new THREE.BufferGeometry();
+  const np2=new Float32Array(nebN*3),nc2=new Float32Array(nebN*3);
+  for(let i=0;i<nebN;i++){
+    const a=Math.random()*Math.PI*2,rad=1.0+Math.random()*1.5;
+    np2[i*3]=Math.cos(a)*rad*(1+.4*Math.random());
+    np2[i*3+1]=Math.sin(a)*rad*(1+.3*Math.random());
+    np2[i*3+2]=(Math.random()-.5)*.8;
+    nc2[i*3]=.4+Math.random()*.4;nc2[i*3+1]=.2+Math.random()*.2;nc2[i*3+2]=1;
+  }
+  ng.setAttribute('position',new THREE.BufferAttribute(np2,3));
+  ng.setAttribute('color',new THREE.BufferAttribute(nc2,3));
+  const nebula=new THREE.Points(ng,new THREE.PointsMaterial({size:.022,vertexColors:true,transparent:true,opacity:.3}));
+  scene.add(nebula);
+
+  let idleTime=0;
+  let smoothF=0,targetF=0,lastChapter=-1;
+
+  function applyFrame(f,idle){
+    const t=f/FRAMES;
+    const ang=t*Math.PI*2.8;
+    const ia=idle*.4;
+
+    rings[0].rotation.z=ang*.65+ia*.3;
+    rings[0].rotation.x=Math.PI*.28+ang*.28+Math.sin(idle*.5)*.05;
+    rings[1].rotation.z=-ang*.5+ia*.25;
+    rings[1].rotation.y=Math.PI*.2+ang*.38+Math.cos(idle*.4)*.04;
+    rings[2].rotation.x=Math.PI*.1+ang*.22+ia*.15;
+    rings[2].rotation.z=ang*.55;
+    rings[3].rotation.y=ang*.3+ia*.2;
+    rings[3].rotation.z=-ang*.4+Math.sin(idle*.3)*.06;
+    rings[4].rotation.x=Math.PI*.82+ang*.9-ia*.35;
+    rings[4].rotation.y=Math.PI*.3-ang*.35;
+    rings[5].rotation.z=ang*.45+ia*.28;
+    rings[5].rotation.x=Math.PI*.4+ang*.18;
+
+    rings[0].material.opacity=.14+t*.28+Math.sin(idle*.7)*.03;
+    rings[1].material.opacity=.12+t*.22;
+    rings[2].material.opacity=.10+t*.20;
+    rings[3].material.opacity=.08+t*.16;
+    rings[4].material.opacity=.16+t*.26;
+    rings[5].material.opacity=.11+t*.20;
+
+    core.rotation.x=ang*.85+idle*.6;
+    core.rotation.y=ang*1.15+idle*.45;
+    const cs=1+t*.9+Math.sin(idle*.5)*.04;
+    core.scale.setScalar(cs);
+    core.material.opacity=.3+t*.3+Math.sin(idle*.6)*.05;
+
+    shell.rotation.y=-ang*.3+idle*.2;
+    shell.rotation.z=ang*.2+idle*.15;
+    shell.scale.setScalar(1+t*1.2+Math.sin(idle*.4)*.03);
+
+    outerShell.rotation.x=idle*.1+ang*.1;
+    outerShell.rotation.y=idle*.12-ang*.08;
+    outerShell.material.opacity=.04+t*.08+Math.sin(idle*.3)*.02;
+
+    stars3.rotation.y=ang*.07+idle*.025;
+    stars3.rotation.x=ang*.035+idle*.015;
+    nebula.rotation.z=ang*.12+idle*.03;
+
+    const cx=Math.sin(ang*.35+idle*.15)*.8;
+    const cy=Math.cos(ang*.25+idle*.1)*.5;
+    camera.position.set(cx,cy,6-t*2.2);
+    camera.lookAt(cx*.1,cy*.1,0);
+  }
+
+  scroller.addEventListener('scroll',()=>{
+    const maxS=scroller.scrollHeight-scroller.clientHeight;
+    const raw=scroller.scrollTop/maxS;
+    targetF=Math.min(Math.max(raw*FRAMES*SLOWDOWN,0),FRAMES);
+
+    const pct=Math.round((targetF/FRAMES)*100);
+    fillEl.style.width=pct+'%';
+    pctEl.textContent=pct+'%';
+
+    const chIdx=Math.min(Math.floor((targetF/FRAMES)*CHAPTERS.length),CHAPTERS.length-1);
+    if(chIdx!==lastChapter){lastChapter=chIdx;chNameEl.textContent=CHAPTERS[chIdx];}
+
+    const st=scroller.scrollTop;
+    const py=-(st*.08);
+    const px=Math.sin(st*.0018)*10;
+    const sc2=1-Math.min(st*.00035,.14);
+    hlEl.style.transform=`translateY(calc(-50% + ${py}px)) translateX(${px}px) scale(${sc2})`;
+    hlEl.style.opacity=Math.max(0,1-st/460);
+    hintEl.style.opacity=st>60?'0':'1';
+  },{passive:true});
+
+  function loop(){
+    requestAnimationFrame(loop);
+    idleTime+=.012;
+    smoothF+=(targetF-smoothF)*.055;
+    drawBg();
+    applyFrame(smoothF,idleTime);
+    renderer.render(scene,camera);
+  }
+
+  applyFrame(0,0);
+  loop();
+})();
 </script>
